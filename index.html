@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROS Web Video Streaming Guide</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--dark-color) 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav-container {
+            background-color: var(--dark-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 1rem 1.5rem;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section h2 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .section h3 {
+            color: var(--dark-color);
+            margin: 1.5rem 0 0.5rem 0;
+        }
+        
+        .step {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .step-number {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+        }
+        
+        code {
+            background-color: #f1f1f1;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            display: block;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            white-space: pre-wrap;
+        }
+        
+        .code-block {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        
+        .code-block code {
+            background-color: transparent;
+            color: inherit;
+        }
+        
+        .note {
+            background-color: #e8f4fc;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #fef9e7;
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        
+        .danger {
+            background-color: #fdedec;
+            border-left: 4px solid var(--danger-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        
+        .success {
+            background-color: #eafaf1;
+            border-left: 4px solid var(--success-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        
+        .download-box {
+            background-color: #f8f9fa;
+            border: 1px dashed #dee2e6;
+            border-radius: 5px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #1e2a36;
+        }
+        
+        .file-structure {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: monospace;
+        }
+        
+        .preview {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+        
+        .preview img {
+            max-width: 100%;
+            display: block;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+            }
+            
+            nav a {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>ROS Web Video Streaming Guide</h1>
+            <p>Learn how to stream ROS image topics to a web browser</p>
+        </div>
+    </header>
+    
+    <div class="nav-container">
+        <nav>
+            <a href="#intro">Introduction</a>
+            <a href="#prerequisites">Prerequisites</a>
+            <a href="#installation">Installation</a>
+            <a href="#usage">Usage</a>
+            <a href="#web-interface">Web Interface</a>
+            <a href="#troubleshooting">Troubleshooting</a>
+        </nav>
+    </div>
+    
+    <div class="container">
+        <section id="intro" class="section">
+            <h2>Introduction</h2>
+            <p>This guide will show you how to set up web video streaming for ROS (Robot Operating System) image topics. With this setup, you can view your robot's camera feed or any image topic in a web browser without requiring special plugins or extensions.</p>
+            
+            <p>The solution uses the <code>web_video_server</code> package, which provides HTTP streaming of ROS image topics in multiple formats including MJPEG, VP8, VP9, H264, and PNG.</p>
+            
+            <div class="preview">
+                <img src="https://via.placeholder.com/800x450?text=ROS+Web+Streaming+Preview" alt="Preview of ROS web streaming interface">
+            </div>
+        </section>
+        
+        <section id="prerequisites" class="section">
+            <h2>Prerequisites</h2>
+            
+            <div class="step">
+                <h3><span class="step-number">1</span>ROS Installation</h3>
+                <p>You need to have ROS installed on your system. This guide assumes you're using ROS Noetic (ROS 1) or ROS 2 Humble or newer.</p>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">2</span>Basic ROS Knowledge</h3>
+                <p>You should be familiar with basic ROS concepts like topics, nodes, and launching processes.</p>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">3</span>Web Browser</h3>
+                <p>A modern web browser that supports the video formats you plan to use (most modern browsers support MJPEG).</p>
+            </div>
+            
+            <div class="note">
+                <p><strong>Note:</strong> The web_video_server package supports both ROS 1 and ROS 2. Make sure to use the appropriate instructions for your ROS version.</p>
+            </div>
+        </section>
+        
+        <section id="installation" class="section">
+            <h2>Installation</h2>
+            
+            <div class="step">
+                <h3><span class="step-number">1</span>Install web_video_server</h3>
+                <p>You can install the web_video_server package using the following methods:</p>
+                
+                <h4>For ROS 2 (Humble, Jazzy, Rolling):</h4>
+                <code>sudo apt install ros-$ROS_DISTRO-web-video-server</code>
+                
+                <h4>For ROS 1 (Noetic) or building from source:</h4>
+                <code>
+# Create a workspace if you don't have one
+mkdir -p ~/ros_ws/src
+cd ~/ros_ws/src
+
+# Clone the repository
+git clone https://github.com/RobotWebTools/web_video_server.git
+
+# For ROS 1, switch to the ros1 branch
+git checkout ros1
+
+# Install dependencies
+cd ~/ros_ws
+rosdep update
+rosdep install --from-paths src -i
+
+# Build the package
+colcon build --packages-select web_video_server
+source install/setup.bash
+                </code>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">2</span>Verify Installation</h3>
+                <p>After installation, verify that the package is available:</p>
+                <code># For ROS 2
+ros2 pkg list | grep web_video_server
+
+# For ROS 1
+rospack find web_video_server</code>
+            </div>
+            
+            <div class="warning">
+                <p><strong>Important:</strong> If you built from source, make sure to source your workspace setup file (<code>source ~/ros_ws/install/setup.bash</code>) in every terminal where you want to use the package.</p>
+            </div>
+        </section>
+        
+        <section id="usage" class="section">
+            <h2>Usage</h2>
+            
+            <div class="step">
+                <h3><span class="step-number">1</span>Start the Web Video Server</h3>
+                <p>In a terminal, launch the web video server:</p>
+                
+                <h4>For ROS 1:</h4>
+                <code>rosrun web_video_server web_video_server</code>
+                
+                <h4>For ROS 2:</h4>
+                <code>ros2 run web_video_server web_video_server</code>
+                
+                <p>By default, the server runs on port 8080. You can customize the port and other parameters:</p>
+                <code># For ROS 1
+rosrun web_video_server web_video_server _port:=8081 _address:=0.0.0.0
+
+# For ROS 2
+ros2 run web_video_server web_video_server --ros-args -p port:=8081 -p address:=0.0.0.0</code>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">2</span>Publish Image Topics</h3>
+                <p>Make sure you have a node publishing image topics. This could be a camera driver, simulation, or any node that publishes to image topics.</p>
+                <p>Common image topics include:</p>
+                <ul>
+                    <li><code>/camera/image_raw</code></li>
+                    <li><code>/camera/rgb/image_raw</code></li>
+                    <li><code>/camera/depth/image_raw</code></li>
+                    <li><code>/usb_cam/image_raw</code></li>
+                </ul>
+                
+                <p>You can list available topics to find image topics:</p>
+                <code># For ROS 1
+rostopic list
+
+# For ROS 2
+ros2 topic list</code>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">3</span>Access the Web Interface</h3>
+                <p>Open your web browser and navigate to:</p>
+                <code>http://localhost:8080</code>
+                
+                <p>You should see a list of available image topics. Click on any topic to view the stream.</p>
+            </div>
+            
+            <div class="note">
+                <p><strong>Note:</strong> If you're accessing the server from another device, replace <code>localhost</code> with the IP address of your ROS machine.</p>
+            </div>
+        </section>
+        
+        <section id="web-interface" class="section">
+            <h2>Custom Web Interface</h2>
+            
+            <p>While the web_video_server provides a basic interface, you might want to create a custom interface. Here's how to set up the provided HTML/JS/CSS files:</p>
+            
+            <div class="step">
+                <h3><span class="step-number">1</span>Download the Files</h3>
+                <p>Create three files in a directory on your computer:</p>
+                
+                <div class="file-structure">
+                    ros-web-streaming/<br>
+                    ├── index.html<br>
+                    ├── style.css<br>
+                    └── app.js
+                </div>
+                
+                <div class="download-box">
+                    <p>Download the complete example files:</p>
+                    <a href="#" class="btn" onclick="downloadFiles()">Download All Files</a>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">2</span>File Contents</h3>
+                
+                <h4>index.html</h4>
+                <div class="code-block">
+                    <code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;ROS Image Stream Viewer&lt;/title&gt;
+    &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1&gt;ROS Image Stream Viewer&lt;/h1&gt;
+        
+        &lt;div class="controls"&gt;
+            &lt;select id="streamType"&gt;
+                &lt;option value="mjpeg"&gt;MJPEG&lt;/option&gt;
+                &lt;option value="vp8"&gt;VP8 (WebM)&lt;/option&gt;
+                &lt;option value="vp9"&gt;VP9 (WebM)&lt;/option&gt;
+                &lt;option value="h264"&gt;H264 (MP4)&lt;/option&gt;
+                &lt;option value="png"&gt;PNG&lt;/option&gt;
+                &lt;option value="ros_compressed"&gt;ROS Compressed&lt;/option&gt;
+            &lt;/select&gt;
+            
+            &lt;input type="text" id="topicInput" placeholder="Enter topic (e.g., /camera/image_raw)"&gt;
+            
+            &lt;input type="number" id="widthInput" placeholder="Width (0=original)"&gt;
+            
+            &lt;input type="number" id="heightInput" placeholder="Height (0=original)"&gt;
+            
+            &lt;input type="number" id="qualityInput" placeholder="Quality (1-100)" min="1" max="100" value="80"&gt;
+            
+            &lt;button id="startStream"&gt;Start Stream&lt;/button&gt;
+            &lt;button id="stopStream"&gt;Stop Stream&lt;/button&gt;
+        &lt;/div&gt;
+        
+        &lt;div class="status" id="status"&gt;Not connected&lt;/div&gt;
+        
+        &lt;div class="stream-container"&gt;
+            &lt;img id="streamImage" src="" alt="Image stream will appear here"&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;script src="app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+                </div>
+                
+                <h4>style.css</h4>
+                <div class="code-block">
+                    <code>body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+.stream-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#streamImage {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.controls {
+    margin: 15px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+select, input, button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.status {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.connected {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.disconnected {
+    background-color: #f8d7da;
+    color: #721c24;
+}</code>
+                </div>
+                
+                <h4>app.js</h4>
+                <div class="code-block">
+                    <code>document.addEventListener('DOMContentLoaded', function() {
+    const streamTypeSelect = document.getElementById('streamType');
+    const topicInput = document.getElementById('topicInput');
+    const widthInput = document.getElementById('widthInput');
+    const heightInput = document.getElementById('heightInput');
+    const qualityInput = document.getElementById('qualityInput');
+    const startButton = document.getElementById('startStream');
+    const stopButton = document.getElementById('stopStream');
+    const statusDiv = document.getElementById('status');
+    const streamImage = document.getElementById('streamImage');
+    
+    let streamInterval = null;
+    
+    // Set default values
+    widthInput.value = 0;
+    heightInput.value = 0;
+    qualityInput.value = 80;
+    
+    // Function to update the image stream
+    function updateStream() {
+        const topic = topicInput.value.trim();
+        if (!topic) {
+            alert('Please enter a ROS topic');
+            return;
+        }
+        
+        const type = streamTypeSelect.value;
+        const width = widthInput.value;
+        const height = heightInput.value;
+        const quality = qualityInput.value;
+        
+        // Build the stream URL
+        let streamUrl = `http://localhost:8080/stream?topic=${topic}&type=${type}`;
+        
+        if (width > 0) streamUrl += `&width=${width}`;
+        if (height > 0) streamUrl += `&height=${height}`;
+        if (quality > 0) streamUrl += `&quality=${quality}`;
+        
+        // Set the image source
+        streamImage.src = streamUrl;
+        statusDiv.textContent = `Connected to ${topic} (${type})`;
+        statusDiv.className = 'status connected';
+    }
+    
+    // Start the stream
+    startButton.addEventListener('click', function() {
+        if (streamInterval) {
+            clearInterval(streamInterval);
+        }
+        
+        updateStream();
+        
+        // For MJPEG, we don't need to refresh, but for other formats we might
+        if (streamTypeSelect.value !== 'mjpeg') {
+            streamInterval = setInterval(updateStream, 100); // Refresh every 100ms
+        }
+    });
+    
+    // Stop the stream
+    stopButton.addEventListener('click', function() {
+        if (streamInterval) {
+            clearInterval(streamInterval);
+            streamInterval = null;
+        }
+        
+        streamImage.src = '';
+        statusDiv.textContent = 'Stream stopped';
+        statusDiv.className = 'status disconnected';
+    });
+    
+    // Handle image loading errors
+    streamImage.addEventListener('error', function() {
+        statusDiv.textContent = 'Error loading stream. Check if web_video_server is running and topic exists.';
+        statusDiv.className = 'status disconnected';
+    });
+});</code>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">3</span>Run the Web Interface</h3>
+                <p>Open the <code>index.html</code> file in a web browser:</p>
+                <ul>
+                    <li>Double-click the file, or</li>
+                    <li>Use a local web server for better functionality</li>
+                </ul>
+                
+                <h4>Using Python Simple HTTP Server:</h4>
+                <code># Navigate to the directory containing your files
+cd ros-web-streaming
+
+# Python 3
+python -m http.server 8000
+
+# Python 2
+python -m SimpleHTTPServer 8000</code>
+                
+                <p>Then open <code>http://localhost:8000</code> in your browser.</p>
+            </div>
+        </section>
+        
+        <section id="troubleshooting" class="section">
+            <h2>Troubleshooting</h2>
+            
+            <div class="step">
+                <h3><span class="step-number">1</span>Common Issues</h3>
+                
+                <h4>No image topics available</h4>
+                <p>Make sure you have a node publishing image topics. Verify with:</p>
+                <code># For ROS 1
+rostopic list
+
+# For ROS 2
+ros2 topic list</code>
+                
+                <h4>Connection errors</h4>
+                <p>Check that the web_video_server is running:</p>
+                <code># For ROS 1
+rosnode list
+
+# For ROS 2
+ros2 node list</code>
+                
+                <p>You should see <code>/web_video_server</code> in the list.</p>
+                
+                <h4>Can't access from other devices</h4>
+                <p>Make sure to set the address parameter to <code>0.0.0.0</code> when starting the server:</p>
+                <code># For ROS 1
+rosrun web_video_server web_video_server _address:=0.0.0.0
+
+# For ROS 2
+ros2 run web_video_server web_video_server --ros-args -p address:=0.0.0.0</code>
+                
+                <p>Also, check your firewall settings to ensure port 8080 is open.</p>
+            </div>
+            
+            <div class="step">
+                <h3><span class="step-number">2</span>Useful Resources</h3>
+                <ul>
+                    <li><a href="https://github.com/RobotWebTools/web_video_server" target="_blank">web_video_server GitHub Repository</a></li>
+                    <li><a href="http://wiki.ros.org/web_video_server" target="_blank">ROS Wiki: web_video_server</a></li>
+                    <li><a href="https://robotwebtools.org/" target="_blank">Robot Web Tools</a></li>
+                </ul>
+            </div>
+            
+            <div class="note">
+                <p><strong>Tip:</strong> If you're still having issues, check the ROS discourse forums or create an issue on the GitHub repository for the web_video_server package.</p>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>ROS Web Video Streaming Guide | Created for the ROS community</p>
+            <p>This guide is not affiliated with the official ROS project or Open Robotics.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                window.scrollTo({
+                    top: targetElement.offsetTop - 60,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Function to download all files as a zip
+        function downloadFiles() {
+            // In a real implementation, this would link to a zip file
+            alert("In a real implementation, this would download a zip file with all the example files.");
+        }
+    </script>
+</body>
+</html>
